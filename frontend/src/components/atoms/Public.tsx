@@ -1,6 +1,7 @@
 import { useLocation, Navigate, Outlet } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { RootState } from '../../../store'
+import { RootState } from '../../store'
+import config from '../../../config'
 
 const Public = () => {
     const token = useSelector<RootState>((state) => state.user.access_token)
@@ -10,7 +11,7 @@ const Public = () => {
         <Outlet />
     ) : (
         <Navigate
-            to='/todo'
+            to={config.routes.todo}
             replace
             state={{
                 from: location,
