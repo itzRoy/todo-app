@@ -38,7 +38,7 @@ module.exports.login = async (req, res) => {
 
   const access_token = utils.createToken(user._id); 
 
-  return res.cookie('access_token', access_token).status(200).json({success: true, message: 'logged in', data: {email, _id: user._id, access_token}});
+  return res.cookie('access_token', access_token).status(200).json({ status: 200, success: true, message: 'logged in', result: {access_token}});
 
 
 };
