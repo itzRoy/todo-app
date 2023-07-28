@@ -1,12 +1,9 @@
 module.exports = {
-    singleQuote: true,
-    printWidth: 120,
-    proseWrap: "always",
-    tabWidth: 4,
-    useTabs: false,
-    trailingComma: "all",
-    bracketSpacing: true,
-    semi: true,
-    jsxSingleQuote: false,
-    endOfLine: "lf"
+    "semi": false,
+    "tabWidth": 4,
+    "printWidth": 120,
+    "trailingComma": "all",
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "bracketSpacing": true
 }
