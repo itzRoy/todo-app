@@ -51,7 +51,7 @@ exports.getTodos = async (req, res) => {
 
   try {
 
-    return res.status(200).json({success: true, data: paginatedTodoData, totalItems, totalPages, currentPage});
+    return res.status(200).json({status: 200, success: true, result: paginatedTodoData, totalItems, totalPages, currentPage});
 
   } catch (error) {
 
