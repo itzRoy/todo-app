@@ -1,8 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+@layer components {
+    input {
+        @apply bg-light-input dark:bg-input py-5 px-6 placeholder:text-[14px] placeholder:text-light-placeholder dark:placeholder:text-white-text placeholder:opacity-50 dark:text-white rounded-lg outline-none border-none font-medium
+    }
+    button {
+        @apply w-3/5 dark:bg-white-text self-center border-none outline-none rounded-xl text-white-text dark:text-text-black px-5 py-4
+    }
+}
 
 body {
     font-family: 'Poppins', sans-serif;
