@@ -25,7 +25,6 @@ module.exports = {
         "exports": "always-multiline",
         "functions": "always-multiline",
     }],
-    "array-element-newline": ["error", { "multiline": true, "minItems": 3 }],
     "object-curly-newline": ["error", {
       "ObjectExpression": "always",
       "ObjectPattern": { "multiline": true },
