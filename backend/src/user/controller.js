@@ -1,11 +1,15 @@
 const User = require('./model');
 const utils = require('../utils');
 
-module.exports.singup = async (req, res) => {
-  const { email, password } = req.body;
+module.exports.signup = async (req, res) => {
+  const { email, password, confirmPassword } = req.body;
 
   try {
     const isUserExists = await User.findOne({email});
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ success: false, message: 'Password do not match' });
+    }
 
     if (isUserExists) {
 
@@ -13,10 +17,9 @@ module.exports.singup = async (req, res) => {
 
     }
 
-    const user = await User.create({email, password, todoList: []});
-    const access_token = utils.createToken(user._id);
+    await User.create({email, password, todoList: []});
 
-    return res.status(201).json({success: true, data: user, access_token});
+    return res.status(201).json({success: true, message: 'user created'});
 
   } catch (error) {
 
@@ -38,7 +41,7 @@ module.exports.login = async (req, res) => {
 
   const access_token = utils.createToken(user._id); 
 
-  return res.cookie('access_token', access_token).status(200).json({ status: 200, success: true, message: 'logged in', result: {access_token}});
+  return res.cookie('access_token', access_token).status(200).json({ status: 200, success: true, message: 'logged in', data: {access_token}});
 
 
 };
