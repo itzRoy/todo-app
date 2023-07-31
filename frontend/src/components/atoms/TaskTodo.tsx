@@ -25,7 +25,7 @@ const TaskTodo = ({
     return (
         <div className='relative'>
             {(isDeleteLoading || isToggleLoading) && id === identifier ? (
-                <Loader className='absolute w-5 h-5 top-[20%] let-1/2' />
+                <Loader className='absolute w-5 h-5 top-[15%] let-1/2' />
             ) : null}
             <div className='flex px-10 py-3'>
                 <div className='flex items-center'>
@@ -36,6 +36,7 @@ const TaskTodo = ({
                         type='checkbox'
                         value=''
                         className='checkbox'
+                        readOnly
                     />
 
                     <label
