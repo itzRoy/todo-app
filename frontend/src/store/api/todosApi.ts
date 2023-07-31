@@ -22,11 +22,11 @@ interface ITodoGetResponse {
 
 export const authApiSlice = api.injectEndpoints({
     endpoints: (builder) => ({
-        // eslint-disable-next-line prettier/prettier
-        getTodos: builder.mutation<ITodoGetResponse, { page: number; limit: number }>({
+        // eslint-disable-next-line prettier/prettier, @typescript-eslint/ban-types
+        getTodos: builder.mutation<ITodoGetResponse, { page: number; limit: number; filter: {} }>({
             query: (arg) => {
-                const { limit, page } = arg
-                const params = { page, limit }
+                const { limit, page, filter } = arg
+                const params = { page, limit, ...filter }
 
                 return {
                     url: config.endpoints.todo,
