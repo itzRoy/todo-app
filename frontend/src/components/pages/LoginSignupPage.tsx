@@ -41,7 +41,8 @@ const LoginPage: FC = () => {
         setValues(initialState)
 
         resetSignup()
-    }, [isSignup, resetLogin, resetSignup])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isSignup])
 
     useEffect(() => {
         setTimeout(() => {
