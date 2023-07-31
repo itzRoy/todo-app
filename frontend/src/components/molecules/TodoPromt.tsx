@@ -1,7 +1,7 @@
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../../store'
 import { triggerRefresh } from '../../store/slice/todoSlice'
-import { useEffect, useRef, useState } from 'react'
+import { FormEventHandler, useEffect, useRef, useState } from 'react'
 import { usePostTodoMutation } from '../../store/api/todosApi'
 
 const TodoPromt = () => {
@@ -21,15 +21,22 @@ const TodoPromt = () => {
             reset()
 
             setTodo('')
+
+            inputRef?.current?.focus()
         }
     }, [dispatch, isSuccess, reset])
 
-    const submitHandler = () => {
+    const submitHandler: FormEventHandler<HTMLFormElement> = (e) => {
+        e.preventDefault()
+
         addTodo({ todo })
     }
 
     return (
-        <div className='flex  bg-light-input dark:bg-input py-4 px-7   dark:text-white rounded-lg'>
+        <form
+            onSubmit={submitHandler}
+            className='flex  bg-light-input dark:bg-input py-4 px-7   dark:text-white rounded-lg'
+        >
             <input
                 disabled={isLoading}
                 ref={inputRef}
@@ -40,8 +47,7 @@ const TodoPromt = () => {
                 value={todo}
             />
             <button
-                onClick={submitHandler}
-                type='button'
+                type='submit'
                 disabled={isLoading || !todo.length}
                 className={`button px-6 py-3 bg-white-text text-text-black shrink-0 w-auto ${
                     !todo.length && 'cursor-not-allowed'
@@ -49,7 +55,7 @@ const TodoPromt = () => {
             >
                 Add New Note
             </button>
-        </div>
+        </form>
     )
 }
 
