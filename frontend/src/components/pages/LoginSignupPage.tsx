@@ -1,6 +1,6 @@
 import { ChangeEvent, FC, FormEventHandler, useEffect, useState } from 'react'
 import PageWrapper from '../HOC/PageWrapper'
-import LoginSignupForm from '../molecules/LoginSignupForm'
+import { LoginSignupForm } from '../molecules'
 import { useLoginMutation, useSignupMutation } from '../../store/api/userApi'
 import { storeToken } from '../../store/slice/userSlice'
 import { useDispatch } from 'react-redux'
@@ -41,8 +41,7 @@ const LoginPage: FC = () => {
         setValues(initialState)
 
         resetSignup()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isSignup])
+    }, [isSignup, resetLogin, resetSignup])
 
     useEffect(() => {
         setTimeout(() => {

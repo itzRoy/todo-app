@@ -21,37 +21,57 @@ exports.getTodos = async (req, res) => {
       $match: {
         ...queryFilter,
         _id: { $in: userDoc.todoList },
-      }
+      },
+    },
+    {
+      $sort: {
+        createdAt: -1,
+      },
     },
     {
       $facet: {
         paginatedData: [
           { $skip: skip },
-          { $limit: pageLimit }
+          { $limit: pageLimit },
         ],
         totalCount: [
-          { $count: 'count' }
-        ]
-      }
+          {
+            $group: {
+              _id: null,
+              totalItems: { $sum: 1 }, 
+              completeCount: {
+                $sum: {
+                  $cond: [{ $eq: ['$complete', true] }, 1, 0], // New count (total count of documents with complete: true)
+                },
+              },
+            },
+          },
+        ],
+      },
     },
     {
-      $unwind: { path: '$totalCount', preserveNullAndEmptyArrays: true }
+      $unwind: { path: '$totalCount', preserveNullAndEmptyArrays: true },
     },
     {
       $project: {
         paginatedData: 1,
-        totalCount: { $ifNull: ['$totalCount.count', 0] }
-      }
-    }
+        totalCount: {
+          total: { $ifNull: ['$totalCount.totalItems', 0] },
+          completeCount: '$totalCount.completeCount',
+        },
+      },
+    },
   ]);
   
+  
   const paginatedTodoData = paginatedTodo[0].paginatedData;
-  const totalItems = paginatedTodo[0].totalCount;
+  const totalItems = paginatedTodo[0].totalCount.total;
+  const completeCount = paginatedTodo[0].totalCount.completeCount;
   const totalPages = Math.ceil(totalItems / pageLimit);
 
   try {
 
-    return res.status(200).json({status: 200, success: true, result: paginatedTodoData, totalItems, totalPages, currentPage});
+    return res.status(200).json({status: 200, success: true, result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage});
 
   } catch (error) {
 
@@ -112,7 +132,7 @@ exports.toggleDone = async (req, res) => {
 
   try {
 
-    await Todo.updateOne({_id: id}, {$set: {isDone: todoExists.isDone ? false : true}});
+    await Todo.updateOne({_id: id}, {$set: {complete: !todoExists.complete}});
     const updatedTodo = await Todo.findById({_id: id});
     return res.status(200).json({ success: true, message: 'Todo updated', todo: updatedTodo});
 
