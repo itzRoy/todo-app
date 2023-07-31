@@ -27,7 +27,7 @@ const baseQueryCheckAuth = async (args: string | FetchArgs, api: BaseQueryApi, e
 
 const api = createApi({
     baseQuery: baseQueryCheckAuth,
-    // eslint-disable-next-line object-curly-newline
+
     endpoints: () => ({}),
 })
 

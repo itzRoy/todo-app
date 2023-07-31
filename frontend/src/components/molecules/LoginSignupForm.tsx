@@ -21,7 +21,7 @@ interface IForm {
     loginError?: errorType
 }
 
-const LoginSingupForm = ({
+const LoginSignupForm = ({
     submit,
     isSignup,
     setIsSignup,
@@ -34,7 +34,7 @@ const LoginSingupForm = ({
     const toggleSignup = () => setIsSignup((prev) => !prev)
 
     return (
-        <div className='flex flex-col items-center mx-auto my-0 max-w-[500px]'>
+        <div className='flex flex-col items-center mx-auto mt-[40px] max-w-[500px]'>
             <h2 className='dark:text-white-text text-black dark:opacity-50 text-4xl block mb-20'>
                 {!isSignup ? 'Login' : 'Register'}
             </h2>
@@ -89,4 +89,4 @@ const LoginSingupForm = ({
     )
 }
 
-export default LoginSingupForm
+export default LoginSignupForm
