@@ -11,9 +11,11 @@ export interface ITodos {
     currentPage?: number
     totalItems?: number
     totalPages?: number
+    completeCount?: number
     result: TresultArray | []
     isRefresh?: boolean
     isTriggerRefresh?: boolean
+    filter: object
 }
 
 const initialState: ITodos = {
@@ -24,6 +26,8 @@ const initialState: ITodos = {
     totalPages: 1,
     result: [],
     isTriggerRefresh: false,
+    filter: {},
+    completeCount: 0,
 }
 
 const todoSlice = createSlice({
@@ -31,16 +35,14 @@ const todoSlice = createSlice({
     initialState,
     reducers: {
         storePagination: (state, action: PayloadAction<ITodos | undefined>): ITodos => {
-            const { currentPage, result, status, success, totalItems, totalPages, isRefresh } = action.payload ?? {}
+            const { currentPage, result, isRefresh, filter, ...rest } = action.payload ?? {}
 
             return {
                 currentPage,
                 result: isRefresh ? (result as TresultArray) : [...state.result, ...(result as TresultArray)],
-                status,
-                success,
-                totalItems,
-                totalPages,
                 isTriggerRefresh: false,
+                filter: filter || {},
+                ...rest,
             }
         },
         refreshTodos: (state, action: PayloadAction<ITodos | undefined>) => {
@@ -51,10 +53,15 @@ const todoSlice = createSlice({
         triggerRefresh: (state) => {
             state.isTriggerRefresh = !state.isTriggerRefresh
         },
-        resetTodos: () => initialState,
+        setTodosFilter: (state, action: PayloadAction<object>) => {
+            state.filter = action.payload
+        },
+        resetTodosSlice: () => {
+            return initialState
+        },
     },
 })
 
-export const { storePagination, refreshTodos, triggerRefresh, resetTodos } = todoSlice.actions
+export const { storePagination, refreshTodos, triggerRefresh, resetTodosSlice, setTodosFilter } = todoSlice.actions
 
 export default todoSlice.reducer

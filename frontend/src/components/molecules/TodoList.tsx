@@ -19,13 +19,19 @@ const TodoList = () => {
         useDeleteTodoMutation()
     const [toggleTodo, { isLoading: isToggleLoading, isSuccess: isToggleSuccess, reset: resetToggle }] =
         useToggleTodoMutation()
-    const { result, totalPages, isTriggerRefresh } = useSelector<RootState, ITodos>((state) => state.todos)
+    const { result, totalPages, isTriggerRefresh, filter } = useSelector<RootState, ITodos>((state) => state.todos)
 
     const refresh = useCallback(
-        (isDelete: boolean = false) => {
-            getTodos({ page: 1, limit: isDelete ? page * limit - 1 : page * limit })
+        (action?: 'delete' | 'update') => {
+            setIsRefresh(true)
+
+            getTodos({
+                page: 1,
+                limit: action === 'delete' ? page * limit - 1 : action === 'update' ? page * limit : limit,
+                filter,
+            })
         },
-        [getTodos, page],
+        [getTodos, page, filter],
     )
 
     const observer = useMemo(
@@ -39,43 +45,41 @@ const TodoList = () => {
                     }
                 }
             }),
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        [totalPages],
+        [isLoading, page, totalPages],
     )
 
     useEffect(() => {
         if (isDeleteSuccess) {
             resetDelete()
 
-            refresh(true)
-
-            setIsRefresh(true)
+            refresh('delete')
         }
 
         if (isToggleSuccess) {
             resetToggle()
 
-            refresh()
-
-            setIsRefresh(true)
+            refresh('update')
         }
 
         if (isTriggerRefresh) {
-            setIsRefresh(true)
-
-            setPage(1)
+            if (page === 1) {
+                refresh()
+            } else {
+                setPage(1)
+            }
 
             listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
         }
-    }, [isDeleteSuccess, isToggleSuccess, refresh, resetDelete, resetToggle, isTriggerRefresh])
+    }, [isDeleteSuccess, isToggleSuccess, refresh, resetDelete, resetToggle, isTriggerRefresh, getTodos, filter, page])
 
     useEffect(() => {
-        getTodos({ page, limit })
+        getTodos({ page, limit, filter })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, getTodos])
 
     useEffect(() => {
         if (data && !isLoading) {
-            dispatch(storePagination({ isRefresh, ...data }))
+            dispatch(storePagination({ isRefresh, filter, ...data }))
 
             setIsRefresh(false)
 
@@ -89,9 +93,7 @@ const TodoList = () => {
             totalPages &&
             totalPages > page &&
             observer.observe(listRef.current?.lastElementChild)
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [observer, result, totalPages])
+    }, [observer, page, result, totalPages])
 
     const deleteHandler = (id: string) => {
         setIdentifier(id)
@@ -106,7 +108,7 @@ const TodoList = () => {
     }
 
     return (
-        <div ref={listRef} className='max-h-[60vh] flex flex-col flex-1 overflow-y-scroll '>
+        <div ref={listRef} className='max-h-[60vh] flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
             {result?.map(({ _id, todo, complete }) => (
                 <TaskTodo
                     key={_id}
