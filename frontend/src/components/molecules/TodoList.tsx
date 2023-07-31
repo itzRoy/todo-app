@@ -6,19 +6,20 @@ import { useDeleteTodoMutation, useGetTodosMutation, useToggleTodoMutation } fro
 import { AppDispatch, RootState } from '../../store'
 import { useDispatch, useSelector } from 'react-redux'
 
+const limit = 15
+
 const TodoList = () => {
     const dispatch = useDispatch<AppDispatch>()
     const listRef = useRef<HTMLDivElement>(null)
     const [page, setPage] = useState(1)
     const [isRefresh, setIsRefresh] = useState(false)
     const [identifier, setIdentifier] = useState('')
-    const limit = 15
     const [getTodos, { data, isLoading, reset: resetTodos }] = useGetTodosMutation()
     const [deleteTodo, { isLoading: isDeleteLoading, isSuccess: isDeleteSuccess, reset: resetDelete }] =
         useDeleteTodoMutation()
     const [toggleTodo, { isLoading: isToggleLoading, isSuccess: isToggleSuccess, reset: resetToggle }] =
         useToggleTodoMutation()
-    const { result, totalPages } = useSelector<RootState, ITodos>((state) => state.todos)
+    const { result, totalPages, isTriggerRefresh } = useSelector<RootState, ITodos>((state) => state.todos)
 
     const refresh = useCallback(
         (isDelete: boolean = false) => {
@@ -58,7 +59,15 @@ const TodoList = () => {
 
             setIsRefresh(true)
         }
-    }, [isDeleteSuccess, isToggleSuccess, refresh, resetDelete, resetToggle])
+
+        if (isTriggerRefresh) {
+            setIsRefresh(true)
+
+            setPage(1)
+
+            listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+    }, [isDeleteSuccess, isToggleSuccess, refresh, resetDelete, resetToggle, isTriggerRefresh])
 
     useEffect(() => {
         getTodos({ page, limit })
@@ -97,7 +106,7 @@ const TodoList = () => {
     }
 
     return (
-        <div ref={listRef} className='max-h-[60vh] flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
+        <div ref={listRef} className='max-h-[60vh] flex flex-col flex-1 overflow-y-scroll '>
             {result?.map(({ _id, todo, complete }) => (
                 <TaskTodo
                     key={_id}
