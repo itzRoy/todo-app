@@ -14,9 +14,7 @@ export default {
                 background: '#23262C',
                 'check-box': '#29ABE2',
             },
-            fontFamily: {
-                poppins: ['Poppins', 'sans-serif'],
-            },
+            fontFamily: { poppins: ['Poppins', 'sans-serif'] },
         },
     },
     plugins: [],

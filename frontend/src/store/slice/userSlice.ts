@@ -4,9 +4,7 @@ interface User {
     access_token?: string
 }
 
-const initialState: User = {
-    access_token: undefined,
-}
+const initialState: User = { access_token: undefined }
 const userSlice = createSlice({
     name: 'user',
     initialState,

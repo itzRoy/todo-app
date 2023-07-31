@@ -112,7 +112,7 @@ exports.toggleDone = async (req, res) => {
 
   try {
 
-    await Todo.updateOne({_id: id}, {$set: {isDone: todoExists.isDone ? false : true}});
+    await Todo.updateOne({_id: id}, {$set: {complete: !todoExists.complete}});
     const updatedTodo = await Todo.findById({_id: id});
     return res.status(200).json({ success: true, message: 'Todo updated', todo: updatedTodo});
 

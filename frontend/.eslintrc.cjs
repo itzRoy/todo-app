@@ -26,16 +26,13 @@ module.exports = {
         "functions": "always-multiline",
     }],
     "object-curly-newline": ["error", {
-      "ObjectExpression": "always",
+      "ObjectExpression": { "multiline": true, "minProperties": 5 },
       "ObjectPattern": { "multiline": true },
-      "ImportDeclaration": "never",
-      "ExportDeclaration": { "multiline": true, "minProperties": 3 }
   }],
     "object-curly-spacing": ["error", "always"],
     "key-spacing": ["error", { "beforeColon": false }],
     // "padded-blocks": ["error", "always"],
     "newline-after-var": ["error", "always"],
-    "object-property-newline": "error",
     "linebreak-style": ["error", "unix"],
     "padding-line-between-statements": ["error", { blankLine: "always", prev: ["const", "let", "var", "import", "function", "block-like", "expression"], next: ["function", "block-like", "expression", "export"]}, {blankLine: 'always', prev: 'return', next: '*'}]
   },
