@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../../config');
 
 module.exports.createToken = (id) => {
-  return jwt.sign({ id }, config.tokenSecret, { expiresIn: 300000});
+  return jwt.sign({ id }, config.tokenSecret, { expiresIn: 7200});
 };
 
 module.exports.parseQueryParam = (queryParams) => {
