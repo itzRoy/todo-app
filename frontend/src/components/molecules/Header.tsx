@@ -1,9 +1,7 @@
-import assets from '../../assets'
-import ThemeButton from '../atoms/ThemeButton'
+import { profileIcon } from '../../assets'
+import { ThemeButton } from '../atoms'
 
 const Header = () => {
-    const { profileIcon } = assets
-
     return (
         <header className='flex text-black dark:text-white-text w-full justify-between pb-[20px] mb-[20px] min-h-[60px] border-b-[1px] dark:border-opacity-10 border-opacity-10 border-[#23262C] dark:border-white-text'>
             <div>

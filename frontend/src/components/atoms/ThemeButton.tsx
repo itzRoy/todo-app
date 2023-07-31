@@ -1,10 +1,9 @@
 import { useCallback, useLayoutEffect, useState } from 'react'
-import assets from '../../assets'
+import { themeDarkIcon, themeLightIcon } from '../../assets'
 
 type themeType = 'dark' | 'light'
 
 const ThemeButton = () => {
-    const { themeDarkIcon, themeLightIcon } = assets
     const [theme, setTheme] = useState<themeType>()
     const systemThem = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 
