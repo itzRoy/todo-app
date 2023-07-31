@@ -13,6 +13,7 @@ export interface ITodos {
     totalPages?: number
     result: TresultArray | []
     isRefresh?: boolean
+    isTriggerRefresh?: boolean
 }
 
 const initialState: ITodos = {
@@ -22,6 +23,7 @@ const initialState: ITodos = {
     totalItems: 0,
     totalPages: 1,
     result: [],
+    isTriggerRefresh: false,
 }
 
 const todoSlice = createSlice({
@@ -38,6 +40,7 @@ const todoSlice = createSlice({
                 success,
                 totalItems,
                 totalPages,
+                isTriggerRefresh: false,
             }
         },
         refreshTodos: (state, action: PayloadAction<ITodos | undefined>) => {
@@ -45,9 +48,13 @@ const todoSlice = createSlice({
 
             state.result = result as TresultArray
         },
+        triggerRefresh: (state) => {
+            state.isTriggerRefresh = !state.isTriggerRefresh
+        },
+        resetTodos: () => initialState,
     },
 })
 
-export const { storePagination, refreshTodos } = todoSlice.actions
+export const { storePagination, refreshTodos, triggerRefresh, resetTodos } = todoSlice.actions
 
 export default todoSlice.reducer
