@@ -56,9 +56,7 @@ const todoSlice = createSlice({
         setTodosFilter: (state, action: PayloadAction<object>) => {
             state.filter = action.payload
         },
-        resetTodosSlice: () => {
-            return initialState
-        },
+        resetTodosSlice: (state) => ({ ...initialState, filter: state.filter }),
     },
 })
 
