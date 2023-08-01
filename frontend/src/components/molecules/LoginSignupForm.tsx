@@ -34,7 +34,7 @@ const LoginSignupForm = ({
     const toggleSignup = () => setIsSignup((prev) => !prev)
 
     return (
-        <div className='flex flex-col items-center mx-auto mt-[40px] max-w-[500px]'>
+        <div className='flex flex-col items-center mx-auto flex-shrink mt-[40px] w-[500px] max-w-full'>
             <h2 className='dark:text-white-text text-black dark:opacity-50 text-4xl block mb-20'>
                 {!isSignup ? 'Login' : 'Register'}
             </h2>

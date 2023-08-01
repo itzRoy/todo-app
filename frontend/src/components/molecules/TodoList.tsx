@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import TaskTodo from '../atoms/TaskTodo'
 import { Loader } from '../atoms/'
-import { ITodos, storePagination } from '../../store/slice/todoSlice'
+import { ITodos, resetTodosSlice, storePagination } from '../../store/slice/todoSlice'
 import { useDeleteTodoMutation, useGetTodosMutation, useToggleTodoMutation } from '../../store/api/todosApi'
 import { AppDispatch, RootState } from '../../store'
 import { useDispatch, useSelector } from 'react-redux'
@@ -77,12 +77,25 @@ const TodoList = () => {
             if (page === 1) {
                 refresh()
             } else {
+                dispatch(resetTodosSlice())
+
                 setPage(1)
             }
 
             listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
         }
-    }, [isDeleteSuccess, isToggleSuccess, refresh, resetDelete, resetToggle, isTriggerRefresh, getTodos, filter, page])
+    }, [
+        isDeleteSuccess,
+        isToggleSuccess,
+        refresh,
+        resetDelete,
+        resetToggle,
+        isTriggerRefresh,
+        getTodos,
+        filter,
+        page,
+        dispatch,
+    ])
 
     useEffect(() => {
         getTodos({ page, limit, filter })
@@ -122,7 +135,7 @@ const TodoList = () => {
                     identifier={identifier}
                 />
             ))}
-            {isLoading ? <Loader className='h-20 self-center' /> : null}
+            {isLoading ? <Loader className='h-20 self-center my-1' /> : null}
         </div>
     )
 }

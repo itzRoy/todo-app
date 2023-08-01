@@ -94,24 +94,22 @@ const LoginPage: FC = () => {
     }
 
     return (
-        <div className='my-[0] mx-auto '>
-            <LoginSignupForm
-                loginError={loginError}
-                signupError={signupError}
-                setIsSignup={setIsSignup}
-                isSignup={isSignup}
-                values={values}
-                onInputChange={onInputChange}
-                submit={onSubmitHandler}
-                disabled={
-                    isLoginLoading ||
-                    isSignupLoading ||
-                    !values.email ||
-                    !values.password ||
-                    (isSignup && !values.confirmPassword)
-                }
-            />
-        </div>
+        <LoginSignupForm
+            loginError={loginError}
+            signupError={signupError}
+            setIsSignup={setIsSignup}
+            isSignup={isSignup}
+            values={values}
+            onInputChange={onInputChange}
+            submit={onSubmitHandler}
+            disabled={
+                isLoginLoading ||
+                isSignupLoading ||
+                !values.email ||
+                !values.password ||
+                (isSignup && !values.confirmPassword)
+            }
+        />
     )
 }
 
