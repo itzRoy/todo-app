@@ -31,7 +31,7 @@ const TodoHeader = () => {
                 role='button'
                 onClick={handleHideShow}
                 className={`${
-                    isFilterActive && 'justify-self-center'
+                    isFilterActive && 'md:mx-auto'
                 } button flex px-6 py-3 rounded-lg bg-dark-button dark:bg-text-black text-text-black shrink-0 w-auto`}
             >
                 <img src={isFilterActive ? showIcon : hideIcon} alt='visiblity-icon' className='mr-2' />

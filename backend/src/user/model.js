@@ -12,9 +12,12 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true
     },
-    todoList: {
-      type: Array
-    }
+    todoList: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'todo'  
+    }]
+
+    
   }
 );
 

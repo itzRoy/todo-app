@@ -69,6 +69,8 @@ exports.getTodos = async (req, res) => {
   const completeCount = paginatedTodo[0].totalCount.completeCount;
   const totalPages = Math.ceil(totalItems / pageLimit);
 
+  // const lll = await User.findById(userId)?.populate('todoList');
+  // console.log(lll);
   try {
 
     return res.status(200).json({status: 200, success: true, result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage});

@@ -1,11 +1,6 @@
 import api from '.'
 import config from '../../../config'
 
-// interface ITodoGetResponse {
-//     success: boolean
-//     status: number
-//     result: { todo: string; _id: string; complete: boolean }[]
-// }
 type TresultArray = {
     _id: string
     todo: string

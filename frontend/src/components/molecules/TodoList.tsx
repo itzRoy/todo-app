@@ -48,6 +48,18 @@ const TodoList = () => {
         [isLoading, page, totalPages],
     )
 
+    const deleteHandler = (id: string) => {
+        setIdentifier(id)
+
+        deleteTodo(id)
+    }
+
+    const toggleHandler = (id: string) => {
+        setIdentifier(id)
+
+        toggleTodo(id)
+    }
+
     useEffect(() => {
         if (isDeleteSuccess) {
             resetDelete()
@@ -94,18 +106,6 @@ const TodoList = () => {
             totalPages > page &&
             observer.observe(listRef.current?.lastElementChild)
     }, [observer, page, result, totalPages])
-
-    const deleteHandler = (id: string) => {
-        setIdentifier(id)
-
-        deleteTodo(id)
-    }
-
-    const toggleHandler = (id: string) => {
-        setIdentifier(id)
-
-        toggleTodo(id)
-    }
 
     return (
         <div ref={listRef} className='max-h-[60vh] flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
