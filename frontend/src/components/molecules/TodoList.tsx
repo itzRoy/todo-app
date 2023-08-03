@@ -122,7 +122,7 @@ const TodoList = () => {
     }, [observer, page, result, totalPages])
 
     return (
-        <div ref={listRef} className='max-h-[60vh] flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
+        <div ref={listRef} className='flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
             {result?.map(({ _id, todo, complete }) => (
                 <TaskTodo
                     key={_id}
