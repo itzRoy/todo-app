@@ -41,7 +41,8 @@ const TodoList = () => {
                     observer.unobserve(entries[0].target)
 
                     if (totalPages && totalPages > page && !isLoading) {
-                        setPage((prev) => (prev += 1))
+                        // the reason why is set like that beacause the pages arent consistent e.g previous page might be 3 and current 1
+                        setPage(page + 1)
                     }
                 }
             }),
@@ -104,7 +105,7 @@ const TodoList = () => {
 
     useEffect(() => {
         if (data && !isLoading) {
-            dispatch(storePagination({ isRefresh, filter, ...data }))
+            dispatch(storePagination({ isRefresh, filter, ...data.data }))
 
             setIsRefresh(false)
 
