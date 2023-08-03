@@ -9,10 +9,12 @@ type TresultArray = {
 interface ITodoGetResponse {
     success: boolean
     status: number
-    currentPage: number
-    totalItems: number
-    totalPages: number
-    result: TresultArray | []
+    data: {
+        currentPage: number
+        totalItems: number
+        totalPages: number
+        result: TresultArray | []
+    }
 }
 
 export const authApiSlice = api.injectEndpoints({
