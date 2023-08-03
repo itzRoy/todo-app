@@ -41,7 +41,8 @@ const TodoList = () => {
                     observer.unobserve(entries[0].target)
 
                     if (totalPages && totalPages > page && !isLoading) {
-                        setPage((prev) => (prev += 1))
+                        // the reason why is set like that beacause the pages arent consistent e.g previous page might be 3 and current 1
+                        setPage(page + 1)
                     }
                 }
             }),
@@ -104,7 +105,7 @@ const TodoList = () => {
 
     useEffect(() => {
         if (data && !isLoading) {
-            dispatch(storePagination({ isRefresh, filter, ...data }))
+            dispatch(storePagination({ isRefresh, filter, ...data.data }))
 
             setIsRefresh(false)
 
@@ -121,7 +122,7 @@ const TodoList = () => {
     }, [observer, page, result, totalPages])
 
     return (
-        <div ref={listRef} className='max-h-[60vh] flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
+        <div ref={listRef} className='flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
             {result?.map(({ _id, todo, complete }) => (
                 <TaskTodo
                     key={_id}

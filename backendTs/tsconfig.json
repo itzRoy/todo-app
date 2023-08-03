@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ES2020",
+        "sourceMap": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "strictNullChecks": true
+    },
+    "ts-node": {
+        "esm": true,
+        "experimentalSpecifierResolution": "node"
+    },
+    "include": [
+        "src/**/*",
+        "src/*.ts"
+    ]
+}

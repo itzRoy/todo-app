@@ -1,11 +1,13 @@
-const jwt = require('jsonwebtoken');
-const config = require('../../config');
+import jwt from 'jsonwebtoken';
+import config from '../config.js';
+import { Types } from 'mongoose';
+import { ParsedQs } from 'qs';
 
-module.exports.createToken = (id) => {
+const createToken = (id: Types.ObjectId): string => {
   return jwt.sign({ id }, config.tokenSecret, { expiresIn: 7200});
 };
 
-module.exports.parseQueryParam = (queryParams) => {
+const parseQueryParam = (queryParams: ParsedQs): {[key: string]: any} => {
   const parsedParams = {};
 
   for (const key in queryParams) {
@@ -25,3 +27,5 @@ module.exports.parseQueryParam = (queryParams) => {
 
   return parsedParams;
 };
+
+export { createToken, parseQueryParam}

@@ -34,7 +34,7 @@ const ThemeButton = () => {
     }
 
     return (
-        <div className='cursor-pointer flex justify-center' onClick={toggleTheme}>
+        <div className='cursor-pointer hidden md:flex justify-center' onClick={toggleTheme}>
             <img src={theme === 'dark' ? themeDarkIcon : themeLightIcon} alt='them-icon' />
         </div>
     )

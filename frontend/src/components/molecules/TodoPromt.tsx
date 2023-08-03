@@ -49,7 +49,7 @@ const TodoPromt = () => {
             <button
                 type='submit'
                 disabled={isLoading || !todo.length}
-                className={`button px-6 py-3 bg-white-text text-text-black shrink-0 w-auto ${
+                className={`button p-1 md:px-6 md:py-3 bg-white-text hidden md:block text-text-black shrink-0 w-auto ${
                     !todo.length && 'cursor-not-allowed'
                 }`}
             >
