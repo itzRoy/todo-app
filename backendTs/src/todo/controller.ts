@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import {createToken, parseQueryParam} from '../utils/index.js';
+import {createError, createToken, parseQueryParam} from '../utils/index.js';
 import Todo, { ITodo } from './model.js';
 import User from '../user/model.js';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { IbasicResponse, Irequest } from '../declarations.js'
 import { Document } from 'mongoose';
 
@@ -16,7 +16,7 @@ type TpaginationResponse = {
   currentPage: number
 }
 
-const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationResponse>>) => {
+const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationResponse>>, next: NextFunction) => {
   const userId = req.userId;
   const { page, limit, ...filter} = parseQueryParam(req.query);
 
@@ -88,13 +88,13 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
 
   } catch (error) {
 
-    return res.status(500).json({status: 500, success: false, message: 'internal server error'});
+    return next(createError('something went wrong', 500));
     
   }
 };
 
 
-const addTodo = async (req: Irequest<{todo: string}>, res: Response<IbasicResponse>) => {
+const addTodo = async (req: Irequest<{todo: string}>, res: Response<IbasicResponse>, next: NextFunction) => {
   const {userId} = req;
 
 
@@ -109,20 +109,20 @@ const addTodo = async (req: Irequest<{todo: string}>, res: Response<IbasicRespon
 
   } catch (error) {
 
-    return res.status(500).json({ status: 500, success: false, message: 'Internal Server Error', error });
+    return next(createError('something went wrong', 500));
 
   }
 
 
 };
 
-const deleteTodo = async (req: Irequest, res: Response<IbasicResponse>) => {
+const deleteTodo = async (req: Irequest, res: Response<IbasicResponse>, next: NextFunction) => {
   const {userId} = req;
   const id = req.params.id;
   const todoExists = await Todo.findById(id);
 
   if (!todoExists) {
-    return res.status(404).json({ status: 404, success: false, message: 'Todo not found' });
+    return next(createError('Todo not found', 404));
   }
 
   try {
@@ -130,19 +130,19 @@ const deleteTodo = async (req: Irequest, res: Response<IbasicResponse>) => {
     await User.findOneAndUpdate({_id: userId}, {$pull: {todoList: new ObjectId(id)}});
     return res.status(200).json({ status: 200, success: true, message: 'Todo deleted'});
   } catch (error) {
-    return res.status(500).json({ status: 500, success: false, message: 'something went wrong' });
+    return next(createError('something went wrong', 500));
   }
 };
 
 const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<unknown, {}, ITodo> & ITodo & {
   _id: Types.ObjectId;
-}) | null>>) => {
+}) | null>>, next: NextFunction) => {
   const id = req.params.id;
 
   const todoExists = await Todo.findById({_id: id});
 
   if (!todoExists) {
-    return res.status(404).json({ status: 404, success: false, message: 'Todo not found' });
+    return next(createError('Todo not found', 404));
   }
 
   try {
@@ -152,7 +152,7 @@ const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<
     return res.status(200).json({ status: 200, success: true, message: 'Todo updated', data: updatedTodo});
 
   } catch (error) {
-    return res.status(500).json({ status: 500, success: false, message: 'something went wrong' });
+    return next(createError('something went wrong', 500));
   }
 };
 

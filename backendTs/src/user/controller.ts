@@ -1,21 +1,20 @@
 import User, { IUser } from './model.js';
-import {createToken} from '../utils/index.js';
-import { Request, Response } from 'express';
+import {createError, createToken} from '../utils/index.js';
+import { NextFunction, Request, Response } from 'express';
 import { IbasicResponse } from '../declarations.js';
 
-const signup = async (req: Request, res: Response<IbasicResponse>) => {
+const signup = async (req: Request, res: Response<IbasicResponse>, next: NextFunction) => {
   const { email, password, confirmPassword } = req.body;
 
   try {
     const isUserExists = await User.findOne({email});
 
     if (password !== confirmPassword) {
-      return res.status(400).json({  status: 400, success: false, message: 'Password do not match' });
+      return next(createError('Password do not match', 400))
     }
 
     if (isUserExists) {
-
-      return res.status(409).json({ status: 409, success: false, message: 'User already exists' });
+      return next(createError('User already exists', 409))
 
     }
 
@@ -24,20 +23,19 @@ const signup = async (req: Request, res: Response<IbasicResponse>) => {
     return res.status(201).json({status: 201, success: true, message: 'user created'});
 
   } catch (error) {
-
-    return res.status(500).json({status: 500, success: false, message: 'something went wrong', error});
+    return next(createError('something went wrong', 500))
 
   }
 };
 
-const login = async (req: Request, res: Response<IbasicResponse<{access_token: string}>>) => {
+const login = async (req: Request, res: Response<IbasicResponse<{access_token: string}>>, next: NextFunction) => {
 
   const { email, password } = req.body;
   const user = await User.findOne({email});
 
   if (!user || password !== user.password) {
 
-    return res.status(401).json({status: 401, success: false, message: 'wrong credentials'});
+    return next(createError('wrong credentials', 401))
 
   }
 

@@ -27,5 +27,31 @@ const parseQueryParam = (queryParams: ParsedQs): {[key: string]: any} => {
 
   return parsedParams;
 };
+interface CustomError extends Error {
+  status: number;
+}
 
-export { createToken, parseQueryParam}
+class CreateError extends Error implements CustomError {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = this.constructor.name;
+    this.status = status;
+    this.message = message;
+    Object.setPrototypeOf(this, new.target.prototype);
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+
+const createError = (message: string, status: number) => {
+  return new CreateError(message, status)
+  
+}
+
+const isEmailAddress = (value: string): boolean => {
+  const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+  return emailRegex.test(value);
+}
+export { createToken, parseQueryParam, createError, isEmailAddress, CustomError}

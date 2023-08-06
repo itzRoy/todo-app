@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import TaskTodo from '../atoms/TaskTodo'
 import { Loader } from '../atoms/'
-import { ITodos, resetTodosSlice, storePagination } from '../../store/slice/todoSlice'
+import { ITodos, storePagination } from '../../store/slice/todoSlice'
 import { useDeleteTodoMutation, useGetTodosMutation, useToggleTodoMutation } from '../../store/api/todosApi'
 import { AppDispatch, RootState } from '../../store'
 import { useDispatch, useSelector } from 'react-redux'
@@ -27,7 +27,7 @@ const TodoList = () => {
 
             getTodos({
                 page: 1,
-                limit: action === 'delete' ? page * limit - 1 : action === 'update' ? page * limit : limit,
+                limit: action === 'delete' ? page * limit - 1 : action === 'update' ? page * limit : page * limit + 1,
                 filter,
             })
         },
@@ -75,13 +75,7 @@ const TodoList = () => {
         }
 
         if (isTriggerRefresh) {
-            if (page === 1) {
-                refresh()
-            } else {
-                dispatch(resetTodosSlice())
-
-                setPage(1)
-            }
+            refresh()
 
             listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
         }

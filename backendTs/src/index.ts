@@ -6,6 +6,11 @@ import cors from 'cors';
 import userRoutes from'./user/routes.js';
 import todoRoutes from './todo/routes.js';
 import cookieParser from 'cookie-parser'
+import { graphqlHTTP } from "express-graphql"
+import registerSchema from './user/schemaGQL.js'
+import authenticatedSchema from './todo/schemaGQL.js'
+import error from './middlware/error.js';
+import { Irequest } from './declarations.js';
 
 dbConnet()
 
@@ -28,6 +33,35 @@ app.use('/api/todo', authMiddleware, todoRoutes);
 app.use('/api/health', (req, res: Response) => {
   res.send('health checked');
 });
+
+app.use('/api/graphql/auth', graphqlHTTP({
+  schema: registerSchema,
+  graphiql: true,
+  customFormatErrorFn(e) {
+    if(!e.originalError) {
+      return e
+    }
+    return { ...e.originalError, message: e.originalError.message}
+    
+  }
+}))
+
+
+app.use('/api/graphql', authMiddleware, graphqlHTTP((req: Irequest) => {
+  return ({
+  schema: authenticatedSchema,
+  graphiql: true,
+  context: req,
+  customFormatErrorFn(e) {
+    if(!e.originalError) {
+      return e
+    }
+    return { ...e.originalError, message: e.originalError.message}
+    
+  }
+})}))
+
+app.use(error)
 
 app.listen(
   PORT
