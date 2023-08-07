@@ -14,11 +14,15 @@ const TodoList = () => {
     const [page, setPage] = useState(1)
     const [isRefresh, setIsRefresh] = useState(false)
     const [identifier, setIdentifier] = useState('')
+
     const [getTodos, { data, isLoading, reset: resetTodos }] = useGetTodosMutation()
+
     const [deleteTodo, { isLoading: isDeleteLoading, isSuccess: isDeleteSuccess, reset: resetDelete }] =
         useDeleteTodoMutation()
+
     const [toggleTodo, { isLoading: isToggleLoading, isSuccess: isToggleSuccess, reset: resetToggle }] =
         useToggleTodoMutation()
+
     const { result, totalPages, isTriggerRefresh, filter } = useSelector<RootState, ITodos>((state) => state.todos)
 
     const refresh = useCallback(
@@ -27,7 +31,7 @@ const TodoList = () => {
 
             getTodos({
                 page: 1,
-                limit: action === 'delete' ? page * limit - 1 : action === 'update' ? page * limit : limit,
+                limit: action === 'delete' ? page * limit - 1 : action === 'update' ? page * limit : page * limit + 1,
                 filter,
             })
         },
@@ -41,7 +45,8 @@ const TodoList = () => {
                     observer.unobserve(entries[0].target)
 
                     if (totalPages && totalPages > page && !isLoading) {
-                        setPage((prev) => (prev += 1))
+                        // the reason why is set like that beacause the pages arent consistent e.g previous page might be 3 and current 1
+                        setPage(page + 1)
                     }
                 }
             }),
@@ -74,15 +79,22 @@ const TodoList = () => {
         }
 
         if (isTriggerRefresh) {
-            if (page === 1) {
-                refresh()
-            } else {
-                setPage(1)
-            }
+            refresh()
 
             listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
         }
-    }, [isDeleteSuccess, isToggleSuccess, refresh, resetDelete, resetToggle, isTriggerRefresh, getTodos, filter, page])
+    }, [
+        isDeleteSuccess,
+        isToggleSuccess,
+        refresh,
+        resetDelete,
+        resetToggle,
+        isTriggerRefresh,
+        getTodos,
+        filter,
+        page,
+        dispatch,
+    ])
 
     useEffect(() => {
         getTodos({ page, limit, filter })
@@ -91,7 +103,7 @@ const TodoList = () => {
 
     useEffect(() => {
         if (data && !isLoading) {
-            dispatch(storePagination({ isRefresh, filter, ...data }))
+            dispatch(storePagination({ isRefresh, filter, ...data.data }))
 
             setIsRefresh(false)
 
@@ -108,7 +120,7 @@ const TodoList = () => {
     }, [observer, page, result, totalPages])
 
     return (
-        <div ref={listRef} className='max-h-[60vh] flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
+        <div ref={listRef} className='flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
             {result?.map(({ _id, todo, complete }) => (
                 <TaskTodo
                     key={_id}
@@ -122,7 +134,7 @@ const TodoList = () => {
                     identifier={identifier}
                 />
             ))}
-            {isLoading ? <Loader className='h-20 self-center' /> : null}
+            {isLoading ? <Loader className='h-20 self-center my-1' /> : null}
         </div>
     )
 }

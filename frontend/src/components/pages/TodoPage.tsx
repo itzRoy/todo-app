@@ -18,7 +18,7 @@ const TodoPage = () => {
 
     return (
         <>
-            <div className='flex flex-1 flex-col'>
+            <div className='max-h-[87%] md:max-h[97%] h-full flex flex-col'>
                 <TodoHeader />
                 <TodoList />
                 <TodoPromt />

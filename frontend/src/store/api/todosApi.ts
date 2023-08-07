@@ -1,6 +1,11 @@
 import api from '.'
 import config from '../../../config'
 
+const {
+    isGraphQL,
+    endpoints: { todo, todoGL },
+} = config
+
 type TresultArray = {
     _id: string
     todo: string
@@ -9,27 +14,85 @@ type TresultArray = {
 interface ITodoGetResponse {
     success: boolean
     status: number
-    currentPage: number
-    totalItems: number
-    totalPages: number
-    result: TresultArray | []
+    data: {
+        currentPage: number
+        totalItems: number
+        totalPages: number
+        result: TresultArray | []
+        getTodos?: ITodoGetResponse
+    }
 }
+
+const postTodoQueryGl = ({ todo }: { todo: string }) => ({
+    query: `
+mutation AddTodo($todo: String!) {
+addTodo(todo: $todo ) {
+status,
+success,
+message,
+}
+}`,
+    variables: { todo },
+})
+
+const getTodoQueryGl = ({
+    page,
+    limit,
+    filter,
+}: {
+    page: number
+    limit: number
+    filter: { [key: string]: boolean }
+}) => ({
+    query: `
+query GetTodo($page: Float, $limit: Float, $filter: FilterType) {
+getTodos(page: $page, limit: $limit, filter: $filter ) {
+data {
+    completeCount
+    totalPages
+    result {
+        _id
+        todo
+        complete
+    }
+}
+}
+}`,
+    variables: { page, limit, filter },
+})
 
 export const authApiSlice = api.injectEndpoints({
     endpoints: (builder) => ({
-        // eslint-disable-next-line @typescript-eslint/ban-types
-        getTodos: builder.mutation<ITodoGetResponse, { page: number; limit: number; filter: {} }>({
+        getTodos: builder.mutation<
+            ITodoGetResponse,
+            { page: number; limit: number; filter: { [key: string]: boolean } }
+        >({
+            transformResponse(baseQueryReturnValue: ITodoGetResponse) {
+                if (baseQueryReturnValue.data?.getTodos) return baseQueryReturnValue.data.getTodos
+                return baseQueryReturnValue
+            },
             query: (arg) => {
                 const { limit, page, filter } = arg
                 const params = { page, limit, ...filter }
 
-                return {
-                    url: config.endpoints.todo,
-                    method: 'GET',
-                    params,
+                const req: {
+                    url: string
+                    method: string
+                    params?: typeof params
+                    body?: { query: string }
+                } = {
+                    url: isGraphQL ? todoGL : todo,
+                    method: isGraphQL ? 'POST' : 'GET',
                 }
+
+                if (isGraphQL) {
+                    req.body = getTodoQueryGl({ page, limit, filter: { ...filter } })
+                } else req.params = params
+
+                return req
             },
         }),
+
         deleteTodo: builder.mutation({
             query: (id) => {
                 return {
@@ -38,6 +101,7 @@ export const authApiSlice = api.injectEndpoints({
                 }
             },
         }),
+
         toggleTodo: builder.mutation({
             query: (id) => {
                 return {
@@ -46,12 +110,13 @@ export const authApiSlice = api.injectEndpoints({
                 }
             },
         }),
+
         postTodo: builder.mutation<unknown, { todo: string }>({
-            query: (todo) => {
+            query: (body) => {
                 return {
-                    url: config.endpoints.todo,
+                    url: isGraphQL ? todoGL : todo,
                     method: 'POST',
-                    body: todo,
+                    body: isGraphQL ? postTodoQueryGl(body) : body,
                 }
             },
         }),

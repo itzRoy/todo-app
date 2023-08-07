@@ -34,7 +34,7 @@ const LoginSignupForm = ({
     const toggleSignup = () => setIsSignup((prev) => !prev)
 
     return (
-        <div className='flex flex-col items-center mx-auto mt-[40px] max-w-[500px]'>
+        <div className='flex flex-col items-center mx-auto flex-shrink mt-[40px] w-[500px] max-w-full'>
             <h2 className='dark:text-white-text text-black dark:opacity-50 text-4xl block mb-20'>
                 {!isSignup ? 'Login' : 'Register'}
             </h2>
@@ -65,22 +65,22 @@ const LoginSignupForm = ({
                         className='input'
                     />
                 ) : null}
-                {loginError && 'data' in loginError ? (
-                    <p className='dark:opacity-50 text-red-500'>
-                        {(loginError?.data as { message: string }).message as string}
-                    </p>
+
+                {loginError && 'message' in loginError ? (
+                    <p className='dark:opacity-50 text-red-500'>{loginError.message}</p>
                 ) : null}
-                {signupError && 'data' in signupError ? (
-                    <p className='dark:opacity-50 text-red-500'>
-                        {(signupError?.data as { message: string }).message as string}
-                    </p>
+
+                {signupError && 'message' in signupError ? (
+                    <p className='dark:opacity-50 text-red-500'>{signupError?.message}</p>
                 ) : null}
+
                 <p className='dark:opacity-50 dark:text-white-text text-text-black'>
                     {!isSignup ? 'Don’t have an account yet? ' : 'Already have an account? '}
                     <span onClick={toggleSignup} className='underline underline-offset-3 cursor-pointer'>
                         {!isSignup ? 'Signup' : 'Login'}
                     </span>
                 </p>
+
                 <button type='submit' disabled={disabled} className='button disabled:bg-light-input bg-check-box'>
                     {!isSignup ? 'Login' : 'Register'}
                 </button>
