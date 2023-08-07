@@ -1,10 +1,9 @@
-import { Types } from 'mongoose';
-import {createToken, parseQueryParam} from '../utils/index.js';
+import { Types, Document } from 'mongoose';
+import {createError, parseQueryParam} from '../utils/index.js';
 import Todo, { ITodo } from './model.js';
 import User from '../user/model.js';
-import { Request, Response } from 'express';
-import { IbasicResponse, Irequest } from '../declarations.js'
-import { Document } from 'mongoose';
+import { NextFunction, Response } from 'express';
+import { IbasicResponse, Irequest } from '../declarations.js';
 
 const ObjectId = Types.ObjectId;
 
@@ -16,14 +15,13 @@ type TpaginationResponse = {
   currentPage: number
 }
 
-const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationResponse>>) => {
+const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationResponse>>, next: NextFunction) => {
   const userId = req.userId;
-  const { page, limit, ...filter} = parseQueryParam(req.query);
+  const { page = 1, limit = 15, search = '', ...filter} = parseQueryParam(req.query);
 
-  const pageLimit = limit || 10; 
-  const currentPage = page || 1; 
+
   const queryFilter = filter || {};
-  const skip = (currentPage - 1) * pageLimit;
+  const skip = (page - 1) * limit;
 
   const userDoc = await User.findById(userId);
 
@@ -32,6 +30,7 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
       $match: {
         ...queryFilter,
         _id: { $in: userDoc?.todoList },
+        todo: { $regex: search, $options: 'i' },
       },
     },
     {
@@ -43,7 +42,7 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
       $facet: {
         paginatedData: [
           { $skip: skip },
-          { $limit: pageLimit },
+          { $limit: limit },
         ],
         totalCount: [
           {
@@ -52,7 +51,7 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
               totalItems: { $sum: 1 }, 
               completeCount: {
                 $sum: {
-                  $cond: [{ $eq: ['$complete', true] }, 1, 0], // New count (total count of documents with complete: true)
+                  $cond: [{ $eq: ['$complete', true] }, 1, 0], 
                 },
               },
             },
@@ -78,23 +77,23 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
   const paginatedTodoData = paginatedTodo[0].paginatedData;
   const totalItems = paginatedTodo[0].totalCount.total;
   const completeCount = paginatedTodo[0].totalCount.completeCount;
-  const totalPages = Math.ceil(totalItems / pageLimit);
+  const totalPages = Math.ceil(totalItems / limit);
 
   // const lll = await User.findById(userId)?.populate('todoList');
   // console.log(lll);
   try {
 
-    return res.status(200).json({status: 200, success: true, message: 'Success', data: {result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage}});
+    return res.status(200).json({status: 200, success: true, message: 'Success', data: {result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage: page }});
 
   } catch (error) {
 
-    return res.status(500).json({status: 500, success: false, message: 'internal server error'});
+    return next(createError('something went wrong', 500));
     
   }
 };
 
 
-const addTodo = async (req: Irequest<{todo: string}>, res: Response<IbasicResponse>) => {
+const addTodo = async (req: Irequest<{todo: string}>, res: Response<IbasicResponse>, next: NextFunction) => {
   const {userId} = req;
 
 
@@ -109,20 +108,20 @@ const addTodo = async (req: Irequest<{todo: string}>, res: Response<IbasicRespon
 
   } catch (error) {
 
-    return res.status(500).json({ status: 500, success: false, message: 'Internal Server Error', error });
+    return next(createError('something went wrong', 500));
 
   }
 
 
 };
 
-const deleteTodo = async (req: Irequest, res: Response<IbasicResponse>) => {
+const deleteTodo = async (req: Irequest, res: Response<IbasicResponse>, next: NextFunction) => {
   const {userId} = req;
   const id = req.params.id;
   const todoExists = await Todo.findById(id);
 
   if (!todoExists) {
-    return res.status(404).json({ status: 404, success: false, message: 'Todo not found' });
+    return next(createError('Todo not found', 404));
   }
 
   try {
@@ -130,19 +129,19 @@ const deleteTodo = async (req: Irequest, res: Response<IbasicResponse>) => {
     await User.findOneAndUpdate({_id: userId}, {$pull: {todoList: new ObjectId(id)}});
     return res.status(200).json({ status: 200, success: true, message: 'Todo deleted'});
   } catch (error) {
-    return res.status(500).json({ status: 500, success: false, message: 'something went wrong' });
+    return next(createError('something went wrong', 500));
   }
 };
 
-const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<unknown, {}, ITodo> & ITodo & {
+const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<unknown, unknown, ITodo> & ITodo & {
   _id: Types.ObjectId;
-}) | null>>) => {
+}) | null>>, next: NextFunction) => {
   const id = req.params.id;
 
   const todoExists = await Todo.findById({_id: id});
 
   if (!todoExists) {
-    return res.status(404).json({ status: 404, success: false, message: 'Todo not found' });
+    return next(createError('Todo not found', 404));
   }
 
   try {
@@ -152,8 +151,8 @@ const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<
     return res.status(200).json({ status: 200, success: true, message: 'Todo updated', data: updatedTodo});
 
   } catch (error) {
-    return res.status(500).json({ status: 500, success: false, message: 'something went wrong' });
+    return next(createError('something went wrong', 500));
   }
 };
 
-export { toggleDone, addTodo, deleteTodo, getTodos}
+export { toggleDone, addTodo, deleteTodo, getTodos};

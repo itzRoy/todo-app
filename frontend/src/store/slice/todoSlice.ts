@@ -5,6 +5,8 @@ type TresultArray = {
     todo: string
     complete: boolean
 }[]
+
+type Tobject = { [key: string]: boolean }
 export interface ITodos {
     success?: boolean
     status?: number
@@ -15,7 +17,7 @@ export interface ITodos {
     result: TresultArray | []
     isRefresh?: boolean
     isTriggerRefresh?: boolean
-    filter: object
+    filter: Tobject
 }
 
 const initialState: ITodos = {
@@ -53,7 +55,7 @@ const todoSlice = createSlice({
         triggerRefresh: (state) => {
             state.isTriggerRefresh = !state.isTriggerRefresh
         },
-        setTodosFilter: (state, action: PayloadAction<object>) => {
+        setTodosFilter: (state, action: PayloadAction<Tobject>) => {
             state.filter = action.payload
         },
         resetTodosSlice: (state) => ({ ...initialState, filter: state.filter }),

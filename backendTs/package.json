@@ -3,16 +3,20 @@
   "name": "backendts",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "api/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint --fix . --ext ts,tsx --report-unused-disable-directives",
+    "vercel-build": "echo vercel build"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.4.5",
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
+    "eslint": "^8.46.0",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
@@ -26,6 +30,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-graphql": "^0.12.0",
+    "graphql": "^16.7.1",
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.4.1"
   }
