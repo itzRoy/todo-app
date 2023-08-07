@@ -17,11 +17,12 @@ type TpaginationResponse = {
 
 const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationResponse>>, next: NextFunction) => {
   const userId = req.userId;
-  const { page = 1, limit = 15, search = '', ...filter} = parseQueryParam(req.query);
+  const { page, limit, search, ...filter} = parseQueryParam(req.query);
 
-
+  const currentPage = page || 1;
+  const pageLimit = limit || 15;
   const queryFilter = filter || {};
-  const skip = (page - 1) * limit;
+  const skip = (currentPage - 1) * pageLimit;
 
   const userDoc = await User.findById(userId);
 
@@ -30,7 +31,7 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
       $match: {
         ...queryFilter,
         _id: { $in: userDoc?.todoList },
-        todo: { $regex: search, $options: 'i' },
+        todo: { $regex: search || '', $options: 'i' },
       },
     },
     {
@@ -42,7 +43,7 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
       $facet: {
         paginatedData: [
           { $skip: skip },
-          { $limit: limit },
+          { $limit: pageLimit },
         ],
         totalCount: [
           {
@@ -77,13 +78,13 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
   const paginatedTodoData = paginatedTodo[0].paginatedData;
   const totalItems = paginatedTodo[0].totalCount.total;
   const completeCount = paginatedTodo[0].totalCount.completeCount;
-  const totalPages = Math.ceil(totalItems / limit);
+  const totalPages = Math.ceil(totalItems / pageLimit);
 
   // const lll = await User.findById(userId)?.populate('todoList');
   // console.log(lll);
   try {
 
-    return res.status(200).json({status: 200, success: true, message: 'Success', data: {result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage: page }});
+    return res.status(200).json({status: 200, success: true, message: 'Success', data: {result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage}});
 
   } catch (error) {
 
