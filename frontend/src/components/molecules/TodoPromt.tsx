@@ -16,6 +16,17 @@ const TodoPromt = () => {
     const searchRef = useRef<HTMLInputElement>(null)
     const debounceValue = useDebounce(searchValue, 500)
 
+    const onSearchClick = () => {
+        setIsSearchActive((prev) => {
+            if (prev) {
+                dispatch(setTodosSearch(''))
+
+                dispatch(triggerRefresh())
+            }
+            return !prev
+        })
+    }
+
     useEffect(() => {
         if (!isSearchActive) {
             inputRef?.current?.focus()
@@ -61,16 +72,18 @@ const TodoPromt = () => {
     return (
         <form
             onSubmit={submitHandler}
-            className='flex  bg-light-input dark:bg-input py-4 pr-7   dark:text-white rounded-lg'
+            className='flex  bg-light-input dark:bg-input py-4 pr-0 md:pr-7   dark:text-white rounded-lg'
         >
             <div
-                className={`flex  items-center transition-all ease duration-300 px-2 overflow-hidden mx-6 gap-2  ${
-                    isSearchActive ? 'border-b-[0.5px] border-opacity-10 w-full gap-10' : 'w-[50px]'
+                className={`flex  items-center transition-all ease duration-300 px-2 overflow-hidden mx-2 md:mx-6 gap-2  ${
+                    isSearchActive
+                        ? 'border-b-[0.5px] border-text-black dark:border-white-text pb-2 md:pb-0 border-opacity-50 dark:border-opacity-10 w-full gap-10'
+                        : 'w-[50px]'
                 }`}
             >
                 <SearchIcon
-                    onClick={() => setIsSearchActive((prev) => !prev)}
-                    className={`fill-white-text opacity-50 shrink-0 cursor-pointer`}
+                    onClick={onSearchClick}
+                    className={`dark:fill-white-text fill-text-black opacity-50 shrink-0 cursor-pointer`}
                 />
                 <input
                     ref={searchRef}
@@ -79,7 +92,7 @@ const TodoPromt = () => {
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                     className={`${
-                        isSearchActive ? 'w-full ml-7' : 'w-0 hidden'
+                        isSearchActive ? 'w-full ml-2 md:ml-7' : 'w-0 hidden'
                     }  h-6 px-2 py-0 w-0 dark:placeholder:text-white-text placeholder:text-[16px] dark:placeholder:opacity-50 dark:text-white-text outline-none border-none`}
                 />
             </div>
@@ -94,6 +107,7 @@ const TodoPromt = () => {
                 onChange={(e) => setTodo(e.target.value)}
                 value={todo}
             />
+
             <button
                 type='submit'
                 disabled={isLoading || !todo.length}
