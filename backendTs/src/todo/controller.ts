@@ -17,8 +17,10 @@ type TpaginationResponse = {
 
 const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationResponse>>, next: NextFunction) => {
   const userId = req.userId;
-  const { page, limit, search, ...filter} = parseQueryParam(req.query);
+  const { page, limit, ...filter} = parseQueryParam(req.query);
 
+  delete filter.search;
+  const search = req.query.search;
   const currentPage = page || 1;
   const pageLimit = limit || 15;
   const queryFilter = filter || {};
@@ -31,7 +33,7 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
       $match: {
         ...queryFilter,
         _id: { $in: userDoc?.todoList },
-        todo: { $regex: typeof search === 'number' ? search.toString() : search, $options: 'i' },
+        todo: { $regex: search, $options: 'i' },
       },
     },
     {
