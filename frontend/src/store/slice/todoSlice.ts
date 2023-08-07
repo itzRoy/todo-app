@@ -65,7 +65,7 @@ const todoSlice = createSlice({
         setTodosSearch: (state, action: PayloadAction<string>) => {
             state.search = action.payload
         },
-        resetTodosSlice: (state) => ({ ...initialState, filter: state.filter }),
+        resetTodosSlice: (state) => ({ ...initialState, filter: state.filter, search: state.search }),
     },
 })
 

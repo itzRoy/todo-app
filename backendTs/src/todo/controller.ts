@@ -31,7 +31,7 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
       $match: {
         ...queryFilter,
         _id: { $in: userDoc?.todoList },
-        todo: { $regex: search || '', $options: 'i' },
+        todo: { $regex: search.toString() || '', $options: 'i' },
       },
     },
     {

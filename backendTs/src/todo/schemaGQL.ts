@@ -89,7 +89,7 @@ const RootMutation = new GraphQLObjectType({
             $match: {
               ...queryFilter,
               _id: { $in: userDoc?.todoList },
-              todo: { $regex: search || '', $options: 'i' },
+              todo: { $regex: search.toString() || '', $options: 'i' },
             },
           },
           {
