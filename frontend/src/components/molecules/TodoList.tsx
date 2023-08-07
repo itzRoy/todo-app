@@ -23,7 +23,9 @@ const TodoList = () => {
     const [toggleTodo, { isLoading: isToggleLoading, isSuccess: isToggleSuccess, reset: resetToggle }] =
         useToggleTodoMutation()
 
-    const { result, totalPages, isTriggerRefresh, filter } = useSelector<RootState, ITodos>((state) => state.todos)
+    const { result, totalPages, isTriggerRefresh, filter, search } = useSelector<RootState, ITodos>(
+        (state) => state.todos,
+    )
 
     const refresh = useCallback(
         (action?: 'delete' | 'update') => {
@@ -33,9 +35,10 @@ const TodoList = () => {
                 page: 1,
                 limit: action === 'delete' ? page * limit - 1 : action === 'update' ? page * limit : page * limit + 1,
                 filter,
+                search,
             })
         },
-        [getTodos, page, filter],
+        [getTodos, page, filter, search],
     )
 
     const observer = useMemo(
@@ -92,18 +95,19 @@ const TodoList = () => {
         isTriggerRefresh,
         getTodos,
         filter,
+        search,
         page,
         dispatch,
     ])
 
     useEffect(() => {
-        getTodos({ page, limit, filter })
+        getTodos({ page, limit, filter, search })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, getTodos])
 
     useEffect(() => {
         if (data && !isLoading) {
-            dispatch(storePagination({ isRefresh, filter, ...data.data }))
+            dispatch(storePagination({ isRefresh, search, filter, ...data.data }))
 
             setIsRefresh(false)
 
