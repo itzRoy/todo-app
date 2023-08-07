@@ -73,9 +73,10 @@ const RootMutation = new GraphQLObjectType({
       resolve: async function(src, args, context) {
         const {userId} = context;
           
-        const {page, limit, search, filter} = args;
+        const {page, limit, filter} = args;
 
-
+        delete filter.search;
+        const search = args?.search;
         const currentPage = page || 1;
         const pageLimit = limit || 15;
         const queryFilter = filter || {};

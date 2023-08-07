@@ -20,7 +20,6 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
   const { page, limit, ...filter} = parseQueryParam(req.query);
 
   delete filter.search;
-
   const search = req.query.search;
   const currentPage = page || 1;
   const pageLimit = limit || 15;

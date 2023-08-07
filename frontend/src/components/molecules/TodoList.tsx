@@ -33,7 +33,7 @@ const TodoList = () => {
 
             getTodos({
                 page: 1,
-                limit: action === 'delete' ? page * limit - 1 : action === 'update' ? page * limit : page * limit + 1,
+                limit: action === 'delete' ? page * limit - 1 : action === 'update' ? page * limit : limit,
                 filter,
                 search,
             })
@@ -114,7 +114,7 @@ const TodoList = () => {
             resetTodos()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data, dispatch, isLoading, page, resetTodos])
+    }, [data, dispatch, isLoading, page, resetTodos, search])
 
     useEffect(() => {
         listRef.current?.lastElementChild &&
