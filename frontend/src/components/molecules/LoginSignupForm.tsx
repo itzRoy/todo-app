@@ -65,22 +65,22 @@ const LoginSignupForm = ({
                         className='input'
                     />
                 ) : null}
-                {loginError && 'data' in loginError ? (
-                    <p className='dark:opacity-50 text-red-500'>
-                        {(loginError?.data as { message: string }).message as string}
-                    </p>
+
+                {loginError && 'message' in loginError ? (
+                    <p className='dark:opacity-50 text-red-500'>{loginError.message}</p>
                 ) : null}
-                {signupError && 'data' in signupError ? (
-                    <p className='dark:opacity-50 text-red-500'>
-                        {(signupError?.data as { message: string }).message as string}
-                    </p>
+
+                {signupError && 'message' in signupError ? (
+                    <p className='dark:opacity-50 text-red-500'>{signupError?.message}</p>
                 ) : null}
+
                 <p className='dark:opacity-50 dark:text-white-text text-text-black'>
                     {!isSignup ? 'Don’t have an account yet? ' : 'Already have an account? '}
                     <span onClick={toggleSignup} className='underline underline-offset-3 cursor-pointer'>
                         {!isSignup ? 'Signup' : 'Login'}
                     </span>
                 </p>
+
                 <button type='submit' disabled={disabled} className='button disabled:bg-light-input bg-check-box'>
                     {!isSignup ? 'Login' : 'Register'}
                 </button>

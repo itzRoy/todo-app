@@ -5,6 +5,8 @@ type TresultArray = {
     todo: string
     complete: boolean
 }[]
+
+type Tobject = { [key: string]: boolean }
 export interface ITodos {
     success?: boolean
     status?: number
@@ -15,7 +17,8 @@ export interface ITodos {
     result: TresultArray | []
     isRefresh?: boolean
     isTriggerRefresh?: boolean
-    filter: object
+    filter: Tobject
+    search: string
 }
 
 const initialState: ITodos = {
@@ -28,6 +31,7 @@ const initialState: ITodos = {
     isTriggerRefresh: false,
     filter: {},
     completeCount: 0,
+    search: '',
 }
 
 const todoSlice = createSlice({
@@ -35,13 +39,14 @@ const todoSlice = createSlice({
     initialState,
     reducers: {
         storePagination: (state, action: PayloadAction<ITodos | undefined>): ITodos => {
-            const { currentPage, result, isRefresh, filter, ...rest } = action.payload ?? {}
+            const { currentPage, result, isRefresh, filter, search, ...rest } = action.payload ?? {}
 
             return {
                 currentPage,
                 result: isRefresh ? (result as TresultArray) : [...state.result, ...(result as TresultArray)],
                 isTriggerRefresh: false,
                 filter: filter || {},
+                search: search || '',
                 ...rest,
             }
         },
@@ -53,13 +58,18 @@ const todoSlice = createSlice({
         triggerRefresh: (state) => {
             state.isTriggerRefresh = !state.isTriggerRefresh
         },
-        setTodosFilter: (state, action: PayloadAction<object>) => {
+        setTodosFilter: (state, action: PayloadAction<Tobject>) => {
             state.filter = action.payload
         },
-        resetTodosSlice: (state) => ({ ...initialState, filter: state.filter }),
+
+        setTodosSearch: (state, action: PayloadAction<string>) => {
+            state.search = action.payload
+        },
+        resetTodosSlice: (state) => ({ ...initialState, filter: state.filter, search: state.search }),
     },
 })
 
-export const { storePagination, refreshTodos, triggerRefresh, resetTodosSlice, setTodosFilter } = todoSlice.actions
+export const { storePagination, refreshTodos, triggerRefresh, resetTodosSlice, setTodosFilter, setTodosSearch } =
+    todoSlice.actions
 
 export default todoSlice.reducer
