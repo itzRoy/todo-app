@@ -7,7 +7,7 @@ const createToken = (id: Types.ObjectId): string => {
   return jwt.sign({ id }, config.tokenSecret, { expiresIn: 7200});
 };
 
-const parseQueryParam = (queryParams: ParsedQs): {[key: string]: any} => {
+const parseQueryParam = (queryParams: ParsedQs): {[key: string]: number} => {
   const parsedParams = {};
 
   for (const key in queryParams) {
@@ -46,12 +46,12 @@ class CreateError extends Error implements CustomError {
 
 
 const createError = (message: string, status: number) => {
-  return new CreateError(message, status)
+  return new CreateError(message, status);
   
-}
+};
 
 const isEmailAddress = (value: string): boolean => {
   const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
   return emailRegex.test(value);
-}
-export { createToken, parseQueryParam, createError, isEmailAddress, CustomError}
+};
+export { createToken, parseQueryParam, createError, isEmailAddress, CustomError};

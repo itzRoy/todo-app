@@ -14,11 +14,15 @@ const TodoList = () => {
     const [page, setPage] = useState(1)
     const [isRefresh, setIsRefresh] = useState(false)
     const [identifier, setIdentifier] = useState('')
+
     const [getTodos, { data, isLoading, reset: resetTodos }] = useGetTodosMutation()
+
     const [deleteTodo, { isLoading: isDeleteLoading, isSuccess: isDeleteSuccess, reset: resetDelete }] =
         useDeleteTodoMutation()
+
     const [toggleTodo, { isLoading: isToggleLoading, isSuccess: isToggleSuccess, reset: resetToggle }] =
         useToggleTodoMutation()
+
     const { result, totalPages, isTriggerRefresh, filter } = useSelector<RootState, ITodos>((state) => state.todos)
 
     const refresh = useCallback(

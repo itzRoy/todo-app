@@ -1,12 +1,11 @@
-import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
 import { config } from 'dotenv';
-import { GetPublicKeyOrSecret, Secret } from 'jsonwebtoken';
+import { Secret } from 'jsonwebtoken';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-config({path: path.resolve(__dirname, '../.env')});
+config({path: resolve(__dirname, '../.env')});
 
 export type Tconfig = {
   tokenSecret: Secret

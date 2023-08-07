@@ -1,4 +1,4 @@
-import User, { IUser } from './model.js';
+import User from './model.js';
 import {createError, createToken} from '../utils/index.js';
 import { NextFunction, Request, Response } from 'express';
 import { IbasicResponse } from '../declarations.js';
@@ -10,11 +10,11 @@ const signup = async (req: Request, res: Response<IbasicResponse>, next: NextFun
     const isUserExists = await User.findOne({email});
 
     if (password !== confirmPassword) {
-      return next(createError('Password do not match', 400))
+      return next(createError('Password do not match', 400));
     }
 
     if (isUserExists) {
-      return next(createError('User already exists', 409))
+      return next(createError('User already exists', 409));
 
     }
 
@@ -23,7 +23,7 @@ const signup = async (req: Request, res: Response<IbasicResponse>, next: NextFun
     return res.status(201).json({status: 201, success: true, message: 'user created'});
 
   } catch (error) {
-    return next(createError('something went wrong', 500))
+    return next(createError('something went wrong', 500));
 
   }
 };
@@ -35,7 +35,7 @@ const login = async (req: Request, res: Response<IbasicResponse<{access_token: s
 
   if (!user || password !== user.password) {
 
-    return next(createError('wrong credentials', 401))
+    return next(createError('wrong credentials', 401));
 
   }
 
@@ -54,4 +54,4 @@ const logout = async (req: Request, res: Response<IbasicResponse>) => {
     .json({ status: 200, success: true, message: 'Successfully logged out' });
 };
 
-export { login, logout, signup}
+export { login, logout, signup};
