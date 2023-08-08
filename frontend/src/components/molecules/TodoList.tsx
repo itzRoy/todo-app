@@ -121,7 +121,9 @@ const TodoList = () => {
             totalPages &&
             totalPages > page &&
             observer.observe(listRef.current?.lastElementChild)
-    }, [observer, page, result, totalPages])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [result, totalPages])
 
     return (
         <div ref={listRef} className='flex flex-col flex-1 overflow-y-scroll no-scrollbar'>
