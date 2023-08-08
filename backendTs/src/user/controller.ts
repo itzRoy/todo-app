@@ -2,6 +2,7 @@ import User from './model.js';
 import {createError, createToken} from '../utils/index.js';
 import { NextFunction, Request, Response } from 'express';
 import { IbasicResponse } from '../declarations.js';
+import bcrypt from 'bcrypt';
 
 const signup = async (req: Request, res: Response<IbasicResponse>, next: NextFunction) => {
   const { email, password, confirmPassword } = req.body;
@@ -18,30 +19,44 @@ const signup = async (req: Request, res: Response<IbasicResponse>, next: NextFun
 
     }
 
-    await User.create({email, password, todoList: []});
+    bcrypt.hash(password, 10, async (err, hashedPass: string) => {
+      
+      if (err) return next(createError('something went wrong while hashing the password', 400));
 
-    return res.status(201).json({status: 201, success: true, message: 'user created'});
-
+      await User.create({email, password: hashedPass, todoList: []});
+      return res.status(201).json({status: 201, success: true, message: 'user created'});
+    });
   } catch (error) {
+  
+    
     return next(createError('something went wrong', 500));
 
   }
 };
 
 const login = async (req: Request, res: Response<IbasicResponse<{access_token: string}>>, next: NextFunction) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({email});
+  
 
-  const { email, password } = req.body;
-  const user = await User.findOne({email});
+    if (!user) return next(createError('user not found', 404));
+  
+    bcrypt.compare(password, user.password, (err, isMatch: boolean) => {
+      
+      if (isMatch) {
+        const access_token = createToken(user._id); 
+  
+        return res.cookie('access_token', access_token, {maxAge: 7200, httpOnly: true}).status(200).json({ status: 200, success: true, message: 'logged in', data: {access_token}});
+      
+      } 
+      
+      return next(createError('wrong credentials', 401));
+    });
 
-  if (!user || password !== user.password) {
-
-    return next(createError('wrong credentials', 401));
-
+  } catch {
+    return next(createError('something went wrong', 500));
   }
-
-  const access_token = createToken(user._id); 
-
-  return res.cookie('access_token', access_token, {maxAge: 7200, httpOnly: true}).status(200).json({ status: 200, success: true, message: 'logged in', data: {access_token}});
 
 
 };
