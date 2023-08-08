@@ -36,14 +36,13 @@ const RootQuery = new GraphQLObjectType({
         
           bcrypt.compare(password, user.password, (err, isMatch: boolean) => {
             
-            if (isMatch) {
-              const access_token = createToken(user._id); 
-        
-              return {access_token};
-            } 
-            
-            throw createError('wrong credentials', 401);
+            if (!isMatch) throw createError('wrong credentials', 401);
+     
           });
+      
+          const access_token = createToken(user._id); 
+  
+          return {access_token};
       
         } catch {
           throw createError('something went wrong', 500);
@@ -75,8 +74,10 @@ const RootQuery = new GraphQLObjectType({
             if (err) throw createError('something went wrong while hashing the password', 400);
       
             await User.create({email, password: hashedPass, todoList: []});
-            return {status: 201, success: true, message: 'user created'};
           });
+
+          return {status: 201, success: true, message: 'user created'};
+          
         } catch (error) {
         
           
