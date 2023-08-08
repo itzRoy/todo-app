@@ -18,7 +18,7 @@ const TodoPromt = () => {
 
     const onSearchClick = () => {
         setIsSearchActive((prev) => {
-            if (prev) {
+            if (prev && searchValue.length) {
                 dispatch(setTodosSearch(''))
 
                 dispatch(triggerRefresh())

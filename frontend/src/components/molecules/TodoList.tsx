@@ -31,6 +31,10 @@ const TodoList = () => {
         (action?: 'delete' | 'update') => {
             setIsRefresh(true)
 
+            if (!action && page > 1) {
+                return setPage(1)
+            }
+
             getTodos({
                 page: 1,
                 limit: action === 'delete' ? page * limit - 1 : action === 'update' ? page * limit : limit,
