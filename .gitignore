@@ -1,7 +1,6 @@
 backend/node_modules
 backendTs/node_modules
 frontend/node_modules
-backendTs/node_modules
 backend/.env
-backendTs/.env.local
-frontend/.env.local
+backendTs/.env.*
+frontend/.env.*
