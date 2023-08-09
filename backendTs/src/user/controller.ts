@@ -7,14 +7,10 @@ import redisClient from '../redisClient.js';
 import { Types } from 'mongoose';
 
 const signup = async (req: Request, res: Response<IbasicResponse>, next: NextFunction) => {
-  const { email, password, confirmPassword } = req.body;
+  const { email, password } = req.body;
 
   try {
     const isUserExists = await User.findOne({email});
-
-    if (password !== confirmPassword) {
-      return next(createError('Password do not match', 400));
-    }
 
     if (isUserExists) {
       return next(createError('User already exists', 409));
