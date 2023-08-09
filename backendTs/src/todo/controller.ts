@@ -1,5 +1,5 @@
-import { Types, Document } from 'mongoose';
-import {createError, parseQueryParam} from '../utils/index.js';
+import { Types, Document, ObjectId } from 'mongoose';
+import {createError} from '../utils/index.js';
 import Todo, { ITodo } from './model.js';
 import User from '../user/model.js';
 import { NextFunction, Response } from 'express';
@@ -15,6 +15,8 @@ type TpaginationResponse = {
   currentPage: number
 }
 
+type TQuery = {page: number; limit: number; search: string; filter?: {complete: boolean; userId: ObjectId}}
+
 const deletePagesCach = async (userPages: string) => {
 
   const cachExists = await redisClient.exists(userPages);
@@ -26,17 +28,14 @@ const deletePagesCach = async (userPages: string) => {
 
 };
 
-const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationResponse>>, next: NextFunction) => {
+const getTodos = async (req: Irequest<unknown, TQuery>, res: Response<IbasicResponse<TpaginationResponse>>, next: NextFunction) => {
   const userId = req.userId;
-  const { page, limit, ...filter} = parseQueryParam(req.query);
-
-  delete filter.search;
-  const search = req.query.search;
-  const currentPage = page || 1;
-  const pageLimit = limit || 15;
+  
+  const { page, limit, search, ...filter} = req.query;
+  
   const queryFilter = filter || {};
-  const skip = (currentPage - 1) * pageLimit;
-  const cachKey = `user:${userId}page:${currentPage}limit:${limit}search:${search}filter:${JSON.stringify(filter)}`;
+  const skip = (page - 1) * limit;
+  const cachKey = `user:${userId}page:${page}limit:${limit}search:${search}filter:${JSON.stringify(filter)}`;
   const userPages = `pages:${userId}`;
 
   try {
@@ -73,7 +72,7 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
           $facet: {
             paginatedData: [
               { $skip: skip },
-              { $limit: pageLimit },
+              { $limit: limit },
             ],
             totalCount: [
               {
@@ -108,8 +107,8 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
       const paginatedTodoData = paginatedTodo[0].paginatedData;
       const totalItems = paginatedTodo[0].totalCount.total;
       const completeCount = paginatedTodo[0].totalCount.completeCount;
-      const totalPages = Math.ceil(totalItems / pageLimit);
-      const data = {result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage};
+      const totalPages = Math.ceil(totalItems / limit);
+      const data = {result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage: page };
 
       await redisClient.HSET(userPages, [cachKey, JSON.stringify(data)]);
       res.status(200).json({status: 200, success: true, message: 'Success', data});
@@ -171,6 +170,7 @@ const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<
   _id: Types.ObjectId;
 }) | null>>, next: NextFunction) => {
   const id = req.params.id;
+  
   const { userId } = req;
 
   const todoExists = await Todo.findById({_id: id});
