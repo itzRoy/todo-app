@@ -3,7 +3,8 @@ import {Schema, Types, model} from 'mongoose';
 export interface IUser {
   email: string;
   password: string;
-  todoList: Types.ObjectId[] | []
+  todoList: Types.ObjectId[] | [];
+  _id: Types.ObjectId;
   
 }
 const userSchema = new Schema<IUser>(

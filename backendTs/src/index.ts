@@ -12,7 +12,7 @@ import authenticatedSchema from './todo/schemaGQL.js';
 import error from './middlware/error.js';
 import { Irequest } from './declarations.js';
 
-dbConnet();
+await dbConnet();
 
 const PORT = config.port || 5000;
 
