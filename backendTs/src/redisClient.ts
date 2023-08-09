@@ -7,8 +7,7 @@ const redisClient = createClient({
   password: redisPassword,
   socket: {
     host: redisUrl,
-    port: redisPort,
-    timeout: 30000
+    port: redisPort
   }
 });
 

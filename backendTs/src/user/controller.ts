@@ -38,7 +38,6 @@ const signup = async (req: Request, res: Response<IbasicResponse>, next: NextFun
 
 const login = async (req: Request, res: Response<IbasicResponse<{access_token: string}>>, next: NextFunction) => {
   try {
-    await redisClient.connect();
     const { email, password } = req.body;
     const userCachExists = await redisClient.exists(email);
     let user: IUser = { _id: new Types.ObjectId(), email: '', password: '', todoList: []} satisfies IUser;
@@ -69,16 +68,15 @@ const login = async (req: Request, res: Response<IbasicResponse<{access_token: s
       if (isMatch) {
         const access_token = createToken(user._id); 
         await redisClient.set(email, JSON.stringify(user));
-        await redisClient.quit();
-        return res.cookie('access_token', access_token, {maxAge: 7200, httpOnly: true}).status(200).json({ status: 200, success: true, message: 'logged in', data: {access_token}});
-      
+        res.cookie('access_token', access_token, {maxAge: 7200, httpOnly: true}).status(200).json({ status: 200, success: true, message: 'logged in', data: {access_token}});
+        return next();
       } 
-      
+
       return next(createError('wrong credentials', 401));
     });
 
   } catch (error) {
-    
+
     return next(createError('something went wrong', 500));
   }
 

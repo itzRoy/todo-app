@@ -32,16 +32,13 @@ const LoginPage: FC = () => {
             dispatch(storeToken(loginData?.data?.access_token))
 
             setValues(initialState)
+
+            resetLogin()
         }
-    }, [dispatch, loginData, loginError])
+    }, [dispatch, loginData, loginError, resetLogin])
 
     useEffect(() => {
-        resetLogin()
-
         setValues(initialState)
-
-        resetSignup()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSignup])
 
     useEffect(() => {
@@ -63,11 +60,13 @@ const LoginPage: FC = () => {
 
     useEffect(() => {
         if (!signupError && signupData) {
+            resetSignup()
+
             setIsSignup(false)
 
             setValues(initialState)
         }
-    }, [signupData, signupError])
+    }, [resetSignup, signupData, signupError])
 
     const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target

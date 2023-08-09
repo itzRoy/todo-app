@@ -17,7 +17,6 @@ type TpaginationResponse = {
 
 const deletePagesCach = async (userPages: string) => {
 
-  await redisClient.connect();
   const cachExists = await redisClient.exists(userPages);
 
   if (cachExists) {
@@ -25,7 +24,6 @@ const deletePagesCach = async (userPages: string) => {
     await redisClient.del(userPages);
   }
 
-  await redisClient.quit();
 };
 
 const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationResponse>>, next: NextFunction) => {
@@ -42,7 +40,6 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
   const userPages = `pages:${userId}`;
 
   try {
-    await redisClient.connect();
 
     const cachExists = await redisClient.hExists(userPages, cachKey);
 
@@ -52,9 +49,8 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
       
       if (result) {
 
-        await redisClient.quit();
-
-        return res.status(200).json({status: 200, success: true, message: 'Success', data: JSON.parse(result)});
+        res.status(200).json({status: 200, success: true, message: 'Success', data: JSON.parse(result)});
+        return next();
         
       }
     } else {
@@ -116,8 +112,8 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
       const data = {result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage};
 
       await redisClient.HSET(userPages, [cachKey, JSON.stringify(data)]);
-      await redisClient.quit();
-      return res.status(200).json({status: 200, success: true, message: 'Success', data});
+      res.status(200).json({status: 200, success: true, message: 'Success', data});
+      return next();
     }
 
   } catch (error) {
@@ -190,6 +186,7 @@ const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<
     return res.status(200).json({ status: 200, success: true, message: 'Todo updated', data: updatedTodo});
 
   } catch (error) {
+    
     return next(createError('something went wrong', 500));
   }
 };
