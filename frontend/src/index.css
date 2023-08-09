@@ -57,8 +57,8 @@ body {
     border: 1.5px solid #B4B4B4
   }
   .checkbox[type="checkbox"]:checked {
+    border-color: #29ABE2;
     background-color: #29ABE2;
-    border: none
   }
   .checkbox[type="checkbox"]::before {
     content: "";

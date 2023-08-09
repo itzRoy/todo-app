@@ -11,11 +11,18 @@ export type Tconfig = {
   tokenSecret: Secret
   port?: string | number
   db?: string
+  redisUrl?: string
+  redisPassword?: string
+  redisPort?: number
 }
 const configObj: Tconfig = {
   port : process.env.PORT,
   db: process.env.DB,
-  tokenSecret: process.env.TOKEN_SECRET as string
+  tokenSecret: process.env.TOKEN_SECRET as string,
+  redisPassword: process.env.REDIS_PASSWORD,
+  redisUrl: process.env.REDIS_URL,
+  redisPort: process.env.REDIS_PORT as number | undefined,
+
 } satisfies Tconfig;
 
 export default configObj;
