@@ -43,20 +43,24 @@ const LoginPage: FC = () => {
 
     useEffect(() => {
         setTimeout(() => {
-            resetLogin()
+            if (!isLoginLoading && !isSignupLoading) {
+                resetLogin()
 
-            resetSignup()
+                resetSignup()
+            }
         }, 4000)
 
         return () =>
             clearTimeout(
                 setTimeout(() => {
-                    resetLogin()
+                    if (!isLoginLoading && !isSignupLoading) {
+                        resetLogin()
 
-                    resetSignup()
+                        resetSignup()
+                    }
                 }, 4000),
             )
-    }, [resetLogin, resetSignup, loginError, signupError])
+    }, [resetLogin, resetSignup, loginError, signupError, isLoginLoading, isSignupLoading])
 
     useEffect(() => {
         if (!signupError && signupData) {
