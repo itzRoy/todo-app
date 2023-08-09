@@ -11,8 +11,10 @@ import registerSchema from './user/schemaGQL.js';
 import authenticatedSchema from './todo/schemaGQL.js';
 import error from './middlware/error.js';
 import { Irequest } from './declarations.js';
+import openRedisConnection from './middlware/openRedisConnection.js';
+import closeRedisConnection from './middlware/closeRedisConnection.js';
 
-dbConnet();
+await dbConnet();
 
 const PORT = config.port || 5000;
 
@@ -28,8 +30,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/api/user', userRoutes);
-app.use('/api/todo', authMiddleware, todoRoutes);
+app.use('/api/user', openRedisConnection, userRoutes, closeRedisConnection);
+app.use('/api/todo', authMiddleware, openRedisConnection, todoRoutes, closeRedisConnection);
 app.use('/api/health', (req, res: Response) => {
   res.send('health checked');
 });

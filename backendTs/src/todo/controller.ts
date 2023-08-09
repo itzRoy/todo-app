@@ -4,7 +4,7 @@ import Todo, { ITodo } from './model.js';
 import User from '../user/model.js';
 import { NextFunction, Response } from 'express';
 import { IbasicResponse, Irequest } from '../declarations.js';
-
+import redisClient from '../redisClient.js';
 const ObjectId = Types.ObjectId;
 
 type TpaginationResponse = {
@@ -14,6 +14,17 @@ type TpaginationResponse = {
   totalPages: number,
   currentPage: number
 }
+
+const deletePagesCach = async (userPages: string) => {
+
+  const cachExists = await redisClient.exists(userPages);
+
+  if (cachExists) {
+
+    await redisClient.del(userPages);
+  }
+
+};
 
 const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationResponse>>, next: NextFunction) => {
   const userId = req.userId;
@@ -25,68 +36,85 @@ const getTodos = async (req: Irequest, res: Response<IbasicResponse<TpaginationR
   const pageLimit = limit || 15;
   const queryFilter = filter || {};
   const skip = (currentPage - 1) * pageLimit;
+  const cachKey = `user:${userId}page:${currentPage}limit:${limit}search:${search}filter:${JSON.stringify(filter)}`;
+  const userPages = `pages:${userId}`;
 
-  const userDoc = await User.findById(userId);
-
-  const paginatedTodo = await Todo.aggregate([
-    {
-      $match: {
-        ...queryFilter,
-        _id: { $in: userDoc?.todoList },
-        todo: { $regex: search, $options: 'i' },
-      },
-    },
-    {
-      $sort: {
-        createdAt: -1,
-      },
-    },
-    {
-      $facet: {
-        paginatedData: [
-          { $skip: skip },
-          { $limit: pageLimit },
-        ],
-        totalCount: [
-          {
-            $group: {
-              _id: null,
-              totalItems: { $sum: 1 }, 
-              completeCount: {
-                $sum: {
-                  $cond: [{ $eq: ['$complete', true] }, 1, 0], 
-                },
-              },
-            },
-          },
-        ],
-      },
-    },
-    {
-      $unwind: { path: '$totalCount', preserveNullAndEmptyArrays: true },
-    },
-    {
-      $project: {
-        paginatedData: 1,
-        totalCount: {
-          total: { $ifNull: ['$totalCount.totalItems', 0] },
-          completeCount: '$totalCount.completeCount',
-        },
-      },
-    },
-  ]);
-  
-  
-  const paginatedTodoData = paginatedTodo[0].paginatedData;
-  const totalItems = paginatedTodo[0].totalCount.total;
-  const completeCount = paginatedTodo[0].totalCount.completeCount;
-  const totalPages = Math.ceil(totalItems / pageLimit);
-
-  // const lll = await User.findById(userId)?.populate('todoList');
-  // console.log(lll);
   try {
 
-    return res.status(200).json({status: 200, success: true, message: 'Success', data: {result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage}});
+    const cachExists = await redisClient.hExists(userPages, cachKey);
+
+    if (cachExists) {
+      
+      const result = await redisClient.HGET(userPages, cachKey);
+      
+      if (result) {
+
+        res.status(200).json({status: 200, success: true, message: 'Success', data: JSON.parse(result)});
+        return next();
+        
+      }
+    } else {
+      const userDoc = await User.findById(userId);
+
+      const paginatedTodo = await Todo.aggregate([
+        {
+          $match: {
+            ...queryFilter,
+            _id: { $in: userDoc?.todoList },
+            todo: { $regex: search, $options: 'i' },
+          },
+        },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+        {
+          $facet: {
+            paginatedData: [
+              { $skip: skip },
+              { $limit: pageLimit },
+            ],
+            totalCount: [
+              {
+                $group: {
+                  _id: null,
+                  totalItems: { $sum: 1 }, 
+                  completeCount: {
+                    $sum: {
+                      $cond: [{ $eq: ['$complete', true] }, 1, 0], 
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: { path: '$totalCount', preserveNullAndEmptyArrays: true },
+        },
+        {
+          $project: {
+            paginatedData: 1,
+            totalCount: {
+              total: { $ifNull: ['$totalCount.totalItems', 0] },
+              completeCount: '$totalCount.completeCount',
+            },
+          },
+        },
+      ]);
+  
+  
+      const paginatedTodoData = paginatedTodo[0].paginatedData;
+      const totalItems = paginatedTodo[0].totalCount.total;
+      const completeCount = paginatedTodo[0].totalCount.completeCount;
+      const totalPages = Math.ceil(totalItems / pageLimit);
+      const data = {result: paginatedTodoData, totalItems, completeCount, totalPages, currentPage};
+
+      await redisClient.HSET(userPages, [cachKey, JSON.stringify(data)]);
+      res.status(200).json({status: 200, success: true, message: 'Success', data});
+      return next();
+    }
 
   } catch (error) {
 
@@ -101,6 +129,8 @@ const addTodo = async (req: Irequest<{todo: string}>, res: Response<IbasicRespon
 
 
   try {
+    await deletePagesCach(`pages:${userId}`);
+
     const savedTodo = await Todo.create({
       todo: req.body.todo,
       complete: false
@@ -128,6 +158,7 @@ const deleteTodo = async (req: Irequest, res: Response<IbasicResponse>, next: Ne
   }
 
   try {
+    await deletePagesCach(`pages:${userId}`);
     await Todo.deleteOne({_id: id});
     await User.findOneAndUpdate({_id: userId}, {$pull: {todoList: new ObjectId(id)}});
     return res.status(200).json({ status: 200, success: true, message: 'Todo deleted'});
@@ -140,6 +171,7 @@ const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<
   _id: Types.ObjectId;
 }) | null>>, next: NextFunction) => {
   const id = req.params.id;
+  const { userId } = req;
 
   const todoExists = await Todo.findById({_id: id});
 
@@ -148,12 +180,13 @@ const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<
   }
 
   try {
-
+    await deletePagesCach(`pages:${userId}`);
     await Todo.updateOne({_id: id}, {$set: {complete: !todoExists.complete}});
     const updatedTodo = await Todo.findById(id);
     return res.status(200).json({ status: 200, success: true, message: 'Todo updated', data: updatedTodo});
 
   } catch (error) {
+    
     return next(createError('something went wrong', 500));
   }
 };
