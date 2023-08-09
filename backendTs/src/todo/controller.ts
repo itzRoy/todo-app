@@ -171,6 +171,7 @@ const toggleDone = async (req: Irequest, res: Response<IbasicResponse<(Document<
   _id: Types.ObjectId;
 }) | null>>, next: NextFunction) => {
   const id = req.params.id;
+  
   const { userId } = req;
 
   const todoExists = await Todo.findById({_id: id});
