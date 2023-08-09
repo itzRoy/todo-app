@@ -2,11 +2,13 @@ import { NextFunction, Request, Response } from 'express';
 import Joi from 'joi';
 import { createError } from '../utils/index.js';
 
-const validator = (schema: Joi.ObjectSchema, target: 'body' | 'params') => (
+const validator = (schema: Joi.ObjectSchema, target: 'body' | 'params' | 'query') => (
   async (req: Request, res: Response, next: NextFunction) => {
     try {
 
-      await schema.validateAsync(req[target]);
+      const values = await schema.validateAsync(req[target]);
+      req[target] = values;
+      
       return next();
 
     } catch (error: unknown) {
